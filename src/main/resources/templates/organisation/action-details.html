@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title>Détails de l'action</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <style>
+        .badge {
+            @apply px-2 py-1 text-xs font-medium rounded-full;
+        }
+
+        .btn {
+            @apply px-3 py-1.5 rounded text-white text-sm font-medium transition-colors;
+        }
+
+        .btn-blue {
+            @apply bg-blue-500 hover:bg-blue-600;
+        }
+
+        .btn-yellow {
+            @apply bg-yellow-500 hover:bg-yellow-600;
+        }
+
+        .btn-red {
+            @apply bg-red-500 hover:bg-red-600;
+        }
+    </style>
+</head>
+
+<body>
+    <section layout:fragment="content">
+        <div class="container mx-auto px-4 py-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <!-- En-tête avec titre et boutons -->
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-2xl font-bold text-gray-800" th:text="${action.titre}"></h1>
+                    <div class="flex space-x-2">
+                        <a href="/organisation/actions" class="btn btn-blue">
+                            <i class="fas fa-arrow-left mr-2"></i>Retour
+                        </a>
+                        <a th:href="@{'/organisation/actions/' + ${action.id} + '/participants'}" class="btn btn-green">
+                            <i class="fas fa-users mr-2"></i>Participants
+                        </a>
+                        <a th:href="@{'/organisation/actions/edit/' + ${action.id}}" class="btn btn-yellow">
+                            <i class="fas fa-edit mr-2"></i>Modifier
+                        </a>
+                        <form th:if="${action.statut != 'archive'}"
+                            th:action="@{'/organisation/actions/archive/' + ${action.id}}" method="post" class="inline">
+                            <button type="submit" class="btn btn-red"
+                                onclick="return confirm('Voulez-vous vraiment archiver cette action ?')">
+                                <i class="fas fa-archive mr-2"></i>Archiver
+                            </button>
+                        </form>
+                        <form th:action="@{'/organisation/actions/delete/' + ${action.id}}" method="post"
+                            class="inline">
+                            <button type="submit" class="btn btn-red"
+                                onclick="return confirm('Attention ! Cette action sera définitivement supprimée. Confirmer ?')">
+                                <i class="fas fa-trash mr-2"></i>Supprimer
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Information principale -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Image de l'action -->
+                    <div class="md:col-span-1">
+                        <img th:if="${action.imageUrl != null && !action.imageUrl.isEmpty()}"
+                            th:src="${action.imageUrl}" alt="Image de l'action" class="w-full rounded-lg shadow">
+                        <div th:if="${action.imageUrl == null || action.imageUrl.isEmpty()}"
+                            class="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
+                            <span class="text-gray-500">Aucune image</span>
+                        </div>
+
+                        <!-- Statut -->
+                        <div class="mt-4">
+                            <span class="font-semibold">Statut:</span>
+                            <span th:if="${action.statut == 'active'}" class="badge bg-green-100 text-green-800 ml-2">En
+                                cours</span>
+                            <span th:if="${action.statut == 'archive'}"
+                                class="badge bg-gray-100 text-gray-800 ml-2">Archivée</span>
+                            <span th:if="${action.statut == 'terminee'}"
+                                class="badge bg-yellow-100 text-yellow-800 ml-2">Terminée</span>
+                            <span th:if="${action.statut == 'validee'}"
+                                class="badge bg-blue-100 text-blue-800 ml-2">Validée</span>
+                            <span th:if="${action.statut == null || action.statut.isEmpty()}"
+                                class="badge bg-green-100 text-green-800 ml-2">En cours</span>
+
+                            <!-- Formulaire pour modifier le statut -->
+                            <form th:action="@{'/organisation/actions/statut/' + ${action.id}}" method="post"
+                                class="mt-3">
+                                <div class="flex items-center space-x-2">
+                                    <select name="statut" class="text-sm rounded-md border-gray-300 shadow-sm">
+                                        <option value="active" th:selected="${action.statut == 'active'}">En cours
+                                        </option>
+                                        <option value="validee" th:selected="${action.statut == 'validee'}">Validée
+                                        </option>
+                                        <option value="terminee" th:selected="${action.statut == 'terminee'}">Terminée
+                                        </option>
+                                        <option value="archive" th:selected="${action.statut == 'archive'}">Archivée
+                                        </option>
+                                    </select>
+                                    <button type="submit" class="btn btn-blue">
+                                        <i class="fas fa-check mr-1"></i>Modifier
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Informations détaillées -->
+                    <div class="md:col-span-2">
+                        <div class="space-y-4">
+                            <!-- Description -->
+                            <div>
+                                <h2 class="text-xl font-semibold mb-2">Description</h2>
+                                <p class="text-gray-700" th:text="${action.description}"></p>
+                            </div>
+
+                            <!-- Dates -->
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <h3 class="text-sm font-semibold text-gray-500">Date de création</h3>
+                                    <p class="text-gray-900"
+                                        th:text="${#temporals.format(action.dateCreation, 'dd/MM/yyyy')}"></p>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-semibold text-gray-500">Période</h3>
+                                    <p class="text-gray-900">
+                                        <span th:text="${#temporals.format(action.dateDebut, 'dd/MM/yyyy')}"></span> au
+                                        <span th:text="${#temporals.format(action.dateFin, 'dd/MM/yyyy')}"></span>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Objectif et collecte -->
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-500">Objectif de collecte</h3>
+                                <div class="flex items-center">
+                                    <span class="text-2xl font-bold text-gray-900"
+                                        th:text="${#numbers.formatDecimal(action.montantCollecte, 0, 'COMMA', 2, 'POINT')}"></span>
+                                    <span class="text-gray-600 mx-2">/</span>
+                                    <span class="text-gray-600"
+                                        th:text="${#numbers.formatDecimal(action.objectifCollecte, 0, 'COMMA', 2, 'POINT')} + ' €'"></span>
+                                </div>
+
+                                <!-- Barre de progression -->
+                                <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                                    <div class="bg-blue-600 h-2.5 rounded-full"
+                                        th:style="'width: ' + ${action.objectifCollecte > 0 ? (action.montantCollecte * 100 / action.objectifCollecte) : 0} + '%'"
+                                        th:if="${action.objectifCollecte > 0}">
+                                    </div>
+                                </div>
+
+                                <p class="text-sm text-gray-500 mt-1" th:if="${action.objectifCollecte > 0}">
+                                    <span
+                                        th:text="${#numbers.formatDecimal(action.objectifCollecte > 0 ? (action.montantCollecte * 100 / action.objectifCollecte) : 0, 0, 'COMMA', 1, 'POINT')}"></span>%
+                                    de l'objectif atteint
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+</head>
+
+<body>
+    <div th:fragment="sidebar" class="user-sidebar">
+        <div class="sidebar-header">
+            <a th:href="@{/}">
+                <img src="/images/logo.png" alt="CommonWealth Logo" height="40">
+            </a>
+            <button class="btn-close d-lg-none" type="button" id="close-sidebar"></button>
+        </div>
+
+        <div class="user-info">
+            <div class="avatar-container">
+                <img th:if="${user != null && user.photoUrl != null}" th:src="${user.photoUrl}" alt="Avatar"
+                    class="user-avatar">
+                <img th:unless="${user != null && user.photoUrl != null}" src="/assets/images/default-avatar.svg"
+                    alt="Avatar" class="user-avatar">
+            </div>
+            <div class="user-name" sec:authentication="name">Utilisateur</div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${currentPath == '/' ? 'active' : ''}"
+                        th:href="@{/user/dashboard}">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${currentPath == '/user/profile' ? 'active' : ''}"
+                        th:href="@{/user/profile}">
+                        <i class="fas fa-user"></i> Mon profil
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${currentPath == '/user/dons' ? 'active' : ''}"
+                        th:href="@{/user/dons}">
+                        <i class="fas fa-donate"></i> Mes dons
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${currentPath == '/participations' ? 'active' : ''}"
+                        th:href="@{/participations}">
+                        <i class="fas fa-calendar-check"></i> Mes participations
+                    </a>
+                </li>
+                <li class="nav-item position-relative">
+                    <a class="nav-link" th:classappend="${currentPath == '/user/notifications' ? 'active' : ''}"
+                        th:href="@{/user/notifications}">
+                        <i class="fas fa-bell"></i> Notifications
+                        <span th:if="${unreadCount != null && unreadCount > 0}"
+                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                            style="font-size: 0.65rem; margin-left: -12px;" th:text="${unreadCount}">
+                            3
+                        </span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="dropdown language-selector">
+                <button class="btn dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown">
+                    <img th:src="${#locale.language == 'fr' ? 'https://flagcdn.com/w20/fr.png' : (#locale.language == 'ar' ? 'https://flagcdn.com/w20/sa.png' : 'https://flagcdn.com/w20/gb.png')}"
+                        alt="Language">
+                    <span
+                        th:text="${#locale.language == 'fr' ? 'FR' : (#locale.language == 'ar' ? 'AR' : 'EN')}">FR</span>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="languageDropdown">
+                    <li>
+                        <a class="dropdown-item" th:href="@{${currentPath != null ? currentPath : '/'}(lang='fr')}">
+                            <img src="https://flagcdn.com/w20/fr.png" alt="Français"> Français
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" th:href="@{${currentPath != null ? currentPath : '/'}(lang='en')}">
+                            <img src="https://flagcdn.com/w20/gb.png" alt="English"> English
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" th:href="@{${currentPath != null ? currentPath : '/'}(lang='ar')}">
+                            <img src="https://flagcdn.com/w20/sa.png" alt="العربية"> العربية
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <a th:href="@{/logout}" class="btn btn-outline-danger logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Déconnexion
+            </a>
+        </div>
+    </div>
+
+    <button class="d-lg-none mobile-sidebar-toggle" id="open-sidebar">
+        <i class="fas fa-bars"></i>
+    </button>
+</body>
+
+</html>

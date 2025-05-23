@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<body>
+    <nav th:fragment="sidebar(currentUri)" class="bg-white dark:bg-gray-800 shadow-lg w-64 min-h-screen flex flex-col px-6 py-8 fixed z-20 transition-all duration-300
+               hidden md:flex">
+        <div class="flex items-center mb-10 justify-center">
+            <img src="/images/logo.png" alt="Logo" class="h-14 w-14 object-contain" />
+        </div>
+        <ul class="flex-1 space-y-2">
+            <li>
+                <a href="/admin/dashboard"
+                    th:classappend="${currentUri == '/admin/dashboard'} ? 'bg-blue-100 border-l-4 border-blue-500 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-gray-800 dark:text-gray-200'"
+                    class="flex items-center px-3 py-2 rounded-lg transition hover:bg-blue-50 dark:hover:bg-gray-700 font-semibold">
+                    <i class="fa fa-chart-pie mr-3 text-blue-600 dark:text-blue-400 text-lg"></i>
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="/admin/organisations"
+                    th:classappend="${currentUri == '/admin/organisations'} ? 'bg-green-100 border-l-4 border-green-500 text-green-700 dark:bg-green-900 dark:text-green-300' : 'text-gray-800 dark:text-gray-200'"
+                    class="flex items-center px-3 py-2 rounded-lg transition hover:bg-green-50 dark:hover:bg-gray-700 font-semibold">
+                    <i class="fa fa-building mr-3 text-green-600 dark:text-green-400 text-lg"></i>
+                    Organisations
+                </a>
+            </li>
+            <li>
+                <a href="/admin/utilisateurs"
+                    th:classappend="${currentUri == '/admin/utilisateurs'} ? 'bg-purple-100 border-l-4 border-purple-500 text-purple-700 dark:bg-purple-900 dark:text-purple-300' : 'text-gray-800 dark:text-gray-200'"
+                    class="flex items-center px-3 py-2 rounded-lg transition hover:bg-purple-50 dark:hover:bg-gray-700 font-semibold">
+                    <i class="fa fa-users mr-3 text-purple-600 dark:text-purple-400 text-lg"></i>
+                    Utilisateurs
+                </a>
+            </li>
+            <li>
+                <a href="/admin/statistiques"
+                    th:classappend="${currentUri == '/admin/statistiques'} ? 'bg-orange-100 border-l-4 border-orange-500 text-orange-700 dark:bg-orange-900 dark:text-orange-300' : 'text-gray-800 dark:text-gray-200'"
+                    class="flex items-center px-3 py-2 rounded-lg transition hover:bg-orange-50 dark:hover:bg-gray-700 font-semibold">
+                    <i class="fa fa-chart-bar mr-3 text-orange-500 dark:text-orange-400 text-lg"></i>
+                    Statistiques
+                </a>
+            </li>
+            <li>
+                <a href="/admin/parametres"
+                    th:classappend="${currentUri == '/admin/parametres'} ? 'bg-gray-200 border-l-4 border-gray-500 text-gray-700 dark:bg-gray-700 dark:text-gray-300' : 'text-gray-800 dark:text-gray-200'"
+                    class="flex items-center px-3 py-2 rounded-lg transition hover:bg-gray-100 dark:hover:bg-gray-700 font-semibold">
+                    <i class="fa fa-cog mr-3 text-gray-500 dark:text-gray-300 text-lg"></i>
+                    Paramètres
+                </a>
+            </li>
+        </ul>
+        <div class="mt-10 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <a href="/logout"
+                class="flex items-center px-3 py-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900 text-red-600 dark:text-red-400 font-semibold transition">
+                <i class="fa fa-sign-out-alt mr-3"></i>
+                Déconnexion
+            </a>
+        </div>
+    </nav>
+</body>
+
+</html>

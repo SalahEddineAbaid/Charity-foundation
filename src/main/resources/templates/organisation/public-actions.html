@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actions et Campagnes | CommonWealth</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .action-card {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-image {
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .action-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .action-org {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .progress {
+            height: 0.6rem;
+            margin: 0.75rem 0;
+            border-radius: 1rem;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-bottom: 0.25rem;
+        }
+
+        .filter-card {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 1.5rem;
+        }
+
+        .category-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background-color: #e6f2ff;
+            color: #4D9FFF;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .nav-link {
+            color: #4D9FFF;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            color: #3d7fcc;
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container py-5">
+        <!-- Navigation menu -->
+        <div class="bg-white p-3 mb-4 rounded shadow-sm">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <a href="/" class="btn btn-outline-primary me-2">
+                        <i class="fas fa-home me-1"></i> Accueil
+                    </a>
+                </div>
+                <div>
+                    <a href="/user/dons" class="btn btn-outline-secondary">
+                        <i class="fas fa-history me-1"></i> Mes dons
+                    </a>
+                    <a href="/login" class="btn btn-outline-secondary ms-2" sec:authorize="!isAuthenticated()">
+                        <i class="fas fa-sign-in-alt me-1"></i> Connexion
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-header">
+            <h1 class="fw-bold">Découvrez toutes nos actions</h1>
+            <p class="lead text-muted">Soutenez les projets qui vous tiennent à cœur</p>
+        </div>
+
+        <!-- Donate message -->
+        <div th:if="${showDonateMessage}" class="alert alert-info mb-4">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-heart text-danger me-3 fa-2x"></i>
+                <div>
+                    <h5 class="mb-1">Faire un don</h5>
+                    <p class="mb-0">Choisissez une action ci-dessous pour faire un don et soutenir une cause qui vous
+                        tient à cœur. Votre générosité peut faire la différence!</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Filters -->
+            <div class="col-lg-3 mb-4">
+                <div class="filter-card card p-3">
+                    <h5 class="card-title h6 mb-3">Filtrer par catégorie</h5>
+                    <form th:action="@{/organisation/actions/public/list}" method="get">
+                        <select class="form-select mb-3" name="categorieId" onchange="this.form.submit()">
+                            <option value="">Toutes les catégories</option>
+                            <option th:each="categorie : ${categories}" th:value="${categorie.id}"
+                                th:text="${categorie.nom}" th:selected="${selectedCategorieId == categorie.id}">
+                            </option>
+                        </select>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Actions list -->
+            <div class="col-lg-9">
+                <!-- Empty state -->
+                <div th:if="${#lists.isEmpty(actions)}" class="text-center py-5">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">Aucune action trouvée</h4>
+                    <p>Essayez de revenir plus tard ou contactez-nous</p>
+                </div>
+
+                <!-- Action cards -->
+                <div class="row" th:unless="${#lists.isEmpty(actions)}">
+                    <div th:each="action : ${actions}" class="col-md-6 col-lg-4 mb-4">
+                        <div class="action-card card h-100">
+                            <!-- Action image -->
+                            <img th:if="${action.imageUrl != null}" th:src="${action.imageUrl}" class="action-image"
+                                alt="Image de l'action">
+                            <img th:unless="${action.imageUrl != null}" src="/images/default-action.jpg"
+                                class="action-image" alt="Image par défaut">
+
+                            <!-- Action body -->
+                            <div class="card-body">
+                                <!-- Category badge -->
+                                <div th:if="${action.categorie != null}" class="category-badge"
+                                    th:text="${action.categorie.nom}">
+                                    Catégorie</div>
+
+                                <!-- Title and organization -->
+                                <h5 class="action-title" th:text="${action.titre}">Titre de l'action</h5>
+                                <p th:if="${action.organisation != null}" class="action-org"
+                                    th:text="${action.organisation.nom}">Nom de l'organisation</p>
+
+                                <!-- Progress -->
+                                <div th:if="${action.objectifCollecte > 0}">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="stat-label">Collecté</div>
+                                        <div class="fw-bold"
+                                            th:text="${#numbers.formatDecimal(action.montantCollecte, 0, 'WHITESPACE', 2, 'POINT') + ' €'}">
+                                            0.00 €</div>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar bg-success" role="progressbar"
+                                            th:style="'width: ' + ${(action.montantCollecte / action.objectifCollecte) * 100 < 100 ? (action.montantCollecte / action.objectifCollecte) * 100 : 100} + '%'"
+                                            th:aria-valuenow="${action.montantCollecte}" aria-valuemin="0"
+                                            th:aria-valuemax="${action.objectifCollecte}"></div>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="stat-label">Objectif</div>
+                                        <div class="stat-label"
+                                            th:text="${#numbers.formatDecimal(action.objectifCollecte, 0, 'WHITESPACE', 2, 'POINT') + ' €'}">
+                                            0.00 €</div>
+                                    </div>
+                                </div>
+
+                                <!-- Description truncated -->
+                                <p class="card-text mt-2" th:text="${#strings.abbreviate(action.description, 100)}">
+                                    Description...</p>
+                            </div>
+
+                            <!-- Action footer -->
+                            <div class="card-footer bg-white border-top-0">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted" th:if="${action.dateDebut != null}"
+                                        th:text="${'Début: ' + #temporals.format(action.dateDebut, 'dd/MM/yyyy')}">
+                                        Date de début</small>
+                                    <a th:href="@{/organisation/actions/public/{id}(id=${action.id})}"
+                                        class="btn btn-primary btn-sm">
+                                        <i class="fas fa-info-circle me-1"></i> Détails
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{user/layout-user}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Profil | CommonWealth</title>
+    <style>
+        .profile-card {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            margin-bottom: 1.5rem;
+        }
+
+        .member-since {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .verified {
+            color: #10b981;
+        }
+
+        .profile-avatar {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin-bottom: 1rem;
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-button {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #4D9FFF;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+            cursor: pointer;
+            transition: all 0.2s;
+            z-index: 2;
+        }
+
+        .upload-button:hover {
+            background: #3b82f6;
+        }
+
+        .nav-tabs .nav-link {
+            color: #6c757d;
+            font-weight: 500;
+            padding: 0.75rem 1rem;
+            border: none;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: #4D9FFF;
+            border-bottom: 2px solid #4D9FFF;
+            background: transparent;
+        }
+
+        .nav-tabs .nav-link:hover:not(.active) {
+            color: #4D9FFF;
+            border-bottom: none;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .alert {
+            border-radius: 12px;
+        }
+
+        .activity-item {
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .activity-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .activity-date {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container py-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold">Mon Profil</h2>
+            </div>
+
+            <!-- Alerts -->
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <span th:text="${success}">Opération réussie</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <span th:text="${error}">Une erreur s'est produite</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <!-- Profile Header -->
+            <div class="card profile-card">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-2 text-center">
+                            <div class="profile-avatar mx-auto">
+                                <img th:src="${user.photoUrl != null ? user.photoUrl : '/assets/images/default-avatar.svg'}"
+                                    alt="Photo de profil">
+                                <label class="upload-button" for="profile-image-upload">
+                                    <i class="fas fa-camera"></i>
+                                </label>
+                                <form id="avatar-form" action="/user/upload-avatar" method="POST"
+                                    enctype="multipart/form-data" style="display:none;">
+                                    <input id="profile-image-upload" type="file" name="file"
+                                        accept="image/jpeg,image/png"
+                                        onchange="document.getElementById('avatar-form').submit();">
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-md-10">
+                            <h3 th:text="${user.prenom + ' ' + user.nom}" class="mb-1">Nom d'utilisateur</h3>
+                            <div class="mb-2">
+                                <span th:text="${user.email}">email@example.com</span>
+                                <i th:if="${user.emailVerified}" class="fas fa-check-circle verified ms-1"></i>
+                            </div>
+                            <span class="member-since"
+                                th:text="'Membre depuis le ' + ${#temporals.format(user.dateCreation, 'dd/MM/yyyy')}">
+                                Date d'inscription
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Tabs -->
+            <ul class="nav nav-tabs mb-3" id="profileTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="personal-tab" data-bs-toggle="tab" data-bs-target="#personal"
+                        type="button" role="tab" aria-controls="personal" aria-selected="true">
+                        <i class="fas fa-user me-1"></i> Informations personnelles
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security"
+                        type="button" role="tab" aria-controls="security" aria-selected="false">
+                        <i class="fas fa-shield-alt me-1"></i> Sécurité
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="activity-tab" data-bs-toggle="tab" data-bs-target="#activity"
+                        type="button" role="tab" aria-controls="activity" aria-selected="false">
+                        <i class="fas fa-history me-1"></i> Activité récente
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Tab Contents -->
+            <div class="tab-content">
+                <!-- Personal Information Tab -->
+                <div class="tab-pane fade show active" id="personal" role="tabpanel" aria-labelledby="personal-tab">
+                    <div class="card profile-card">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">Informations personnelles</h5>
+                            <form th:action="@{/user/profile}" method="post">
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label for="nom" class="form-label">Nom</label>
+                                        <input type="text" class="form-control" id="nom" name="nom"
+                                            th:value="${user.nom}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="prenom" class="form-label">Prénom</label>
+                                        <input type="text" class="form-control" id="prenom" name="prenom"
+                                            th:value="${user.prenom}">
+                                    </div>
+                                </div>
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label for="email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="email" th:value="${user.email}"
+                                            readonly>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="telephone" class="form-label">Téléphone</label>
+                                        <input type="tel" class="form-control" id="telephone" name="telephone"
+                                            th:value="${user.telephone}">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="adresse" class="form-label">Adresse</label>
+                                    <textarea class="form-control" id="adresse" name="adresse" rows="3"
+                                        th:text="${user.adresse}"></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Enregistrer</button>
+                                <button type="button" class="btn btn-outline-secondary">Télécharger mes données</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Tab -->
+                <div class="tab-pane fade" id="security" role="tabpanel" aria-labelledby="security-tab">
+                    <div class="card profile-card">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">Changer de mot de passe</h5>
+                            <form th:action="@{/user/change-password}" method="post">
+                                <div class="mb-3">
+                                    <label for="currentPassword" class="form-label">Mot de passe actuel</label>
+                                    <input type="password" class="form-control" id="currentPassword"
+                                        name="currentPassword">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="newPassword" class="form-label">Nouveau mot de passe</label>
+                                    <input type="password" class="form-control" id="newPassword" name="newPassword">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="confirmPassword" class="form-label">Confirmer le mot de passe</label>
+                                    <input type="password" class="form-control" id="confirmPassword"
+                                        name="confirmPassword">
+                                </div>
+                                <button type="submit" class="btn btn-primary">Changer le mot de passe</button>
+                            </form>
+
+                            <hr class="my-4">
+
+                            <h5 class="card-title mb-3">Authentification à deux facteurs (2FA)</h5>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="twoFactorEnabled"
+                                    th:checked="${user.twoFactorEnabled}">
+                                <label class="form-check-label" for="twoFactorEnabled">Activer l'authentification à deux
+                                    facteurs</label>
+                            </div>
+                            <div th:if="${!user.twoFactorEnabled}" class="mb-3">
+                                <p>L'authentification à deux facteurs ajoute une couche de sécurité supplémentaire à
+                                    votre compte.</p>
+                                <button type="button" class="btn btn-outline-primary">Configurer 2FA</button>
+                            </div>
+                            <div th:if="${user.twoFactorEnabled}" class="mb-3">
+                                <p>L'authentification à deux facteurs est activée pour votre compte.</p>
+                                <button type="button" class="btn btn-outline-danger">Désactiver 2FA</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity Tab -->
+                <div class="tab-pane fade" id="activity" role="tabpanel" aria-labelledby="activity-tab">
+                    <div class="card profile-card">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">Activité récente</h5>
+                            <div th:if="${#lists.isEmpty(activities)}" class="text-center py-4">
+                                <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">Aucune activité récente</p>
+                            </div>
+                            <div th:unless="${#lists.isEmpty(activities)}" class="activity-list">
+                                <div th:each="activity : ${activities}" class="activity-item">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span th:text="${activity.description}">Description de l'activité</span>
+                                        <span class="activity-date"
+                                            th:text="${#temporals.format(activity.date, 'dd/MM/yyyy HH:mm')}">
+                                            01/01/2023 12:00
+                                        </span>
+                                    </div>
+                                    <div class="small text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Type: <span th:text="${activity.activityType}">login</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block layout:fragment="custom-scripts">
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // Gestion des onglets Bootstrap
+                var triggerTabList = [].slice.call(document.querySelectorAll('#profileTabs button'));
+                triggerTabList.forEach(function (triggerEl) {
+                    var tabTrigger = new bootstrap.Tab(triggerEl);
+                    triggerEl.addEventListener('click', function (event) {
+                        event.preventDefault();
+                        tabTrigger.show();
+                    });
+                });
+            });
+        </script>
+    </th:block>
+</body>
+
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title>Profil de l'organisation</title>
+</head>
+
+<body>
+    <section layout:fragment="content">
+        <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8 mt-8">
+            <h2 class="text-2xl font-bold mb-6 text-center">Profil de l'organisation</h2>
+            <form th:object="${organisation}" th:action="@{/organisation/profil}" method="post"
+                enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="flex flex-col items-center md:items-start">
+                    <div class="relative w-32 h-32 mb-4">
+                        <img th:src="@{${organisation.logo != null ? organisation.logo : '/images/logo.png'}}"
+                            alt="Logo" class="w-32 h-32 object-cover rounded-full border shadow" />
+                        <label
+                            class="absolute bottom-0 right-0 bg-blue-600 text-white rounded-full p-2 cursor-pointer hover:bg-blue-700 transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15.232 5.232l3.536 3.536M9 13l6-6m2 2l-6 6m-2 2h6a2 2 0 002-2v-6a2 2 0 00-2-2h-6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                            </svg>
+                            <input type="file" name="logoFile" accept="image/jpeg,image/png,image/jpg,image/gif"
+                                class="hidden" />
+                        </label>
+                    </div>
+                    <div th:if="${#fields.hasErrors('logo')}" th:errors="*{logo}" class="text-red-500 text-xs mt-1">
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block font-medium">Nom de l'organisation *</label>
+                        <input th:field="*{nom}" class="input input-bordered w-full" />
+                        <div th:if="${#fields.hasErrors('nom')}" th:errors="*{nom}" class="text-red-500 text-xs"></div>
+                    </div>
+                    <div>
+                        <label class="block font-medium">Description *</label>
+                        <textarea th:field="*{description}" class="input input-bordered w-full"></textarea>
+                        <div th:if="${#fields.hasErrors('description')}" th:errors="*{description}"
+                            class="text-red-500 text-xs"></div>
+                    </div>
+                    <div>
+                        <label class="block font-medium">Adresse légale *</label>
+                        <input th:field="*{adresseLegale}" class="input input-bordered w-full" />
+                        <div th:if="${#fields.hasErrors('adresseLegale')}" th:errors="*{adresseLegale}"
+                            class="text-red-500 text-xs"></div>
+                    </div>
+                    <div>
+                        <label class="block font-medium">Numéro d'identification fiscale *</label>
+                        <input th:field="*{numeroIdentificationFiscale}" class="input input-bordered w-full" />
+                        <div th:if="${#fields.hasErrors('numeroIdentificationFiscale')}"
+                            th:errors="*{numeroIdentificationFiscale}" class="text-red-500 text-xs"></div>
+                    </div>
+                    <div>
+                        <label class="block font-medium">Contact principal *</label>
+                        <input th:field="*{contactPrincipal}" class="input input-bordered w-full" />
+                        <div th:if="${#fields.hasErrors('contactPrincipal')}" th:errors="*{contactPrincipal}"
+                            class="text-red-500 text-xs"></div>
+                    </div>
+                </div>
+                <div class="md:col-span-2 mt-6">
+                    <h3 class="text-lg font-semibold mb-2">Informations administrateur</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block font-medium">Nom</label>
+                            <input th:value="${admin.nom}" class="input input-bordered w-full bg-gray-100" readonly />
+                        </div>
+                        <div>
+                            <label class="block font-medium">Prénom</label>
+                            <input th:value="${admin.prenom}" class="input input-bordered w-full bg-gray-100"
+                                readonly />
+                        </div>
+                        <div>
+                            <label class="block font-medium">Email</label>
+                            <input th:value="${admin.email}" class="input input-bordered w-full bg-gray-100" readonly />
+                        </div>
+                        <div>
+                            <label class="block font-medium">Téléphone</label>
+                            <input th:value="${admin.telephone}" class="input input-bordered w-full bg-gray-100"
+                                readonly />
+                        </div>
+                    </div>
+                </div>
+                <div class="md:col-span-2 flex justify-center mt-8">
+                    <button type="submit"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded shadow transition">
+                        Mettre à jour
+                    </button>
+                </div>
+            </form>
+            <div th:if="${param.success}" class="text-green-600 text-center mt-4">Profil mis à jour avec succès !</div>
+        </div>
+    </section>
+</body>
+
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layout}">
+
+<head>
+    <title>Paramètres administrateur</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2em;
+        }
+
+        .param-section {
+            margin-bottom: 2em;
+        }
+
+        label {
+            display: block;
+            margin-top: 1em;
+        }
+
+        input,
+        select {
+            margin-top: 0.5em;
+        }
+
+        button {
+            margin-top: 1em;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Paramètres administrateur</h1>
+    <div class="param-section">
+        <h2>Changer le mot de passe</h2>
+        <form method="post" th:action="@{/admin/parametres/password}">
+            <label for="oldPassword">Ancien mot de passe :</label>
+            <input type="password" id="oldPassword" name="oldPassword" required />
+
+            <label for="newPassword">Nouveau mot de passe :</label>
+            <input type="password" id="newPassword" name="newPassword" required />
+
+            <button type="submit">Changer</button>
+        </form>
+    </div>
+    <div class="param-section">
+        <h2>Notifications</h2>
+        <form method="post" th:action="@{/admin/parametres/notifications}">
+            <label>
+                <input type="checkbox" name="emailNotifications" checked />
+                Recevoir les notifications par email
+            </label>
+            <button type="submit">Enregistrer</button>
+        </form>
+    </div>
+    <!-- Ajoute ici d'autres sections de paramètres selon tes besoins -->
+</body>
+
+</html>

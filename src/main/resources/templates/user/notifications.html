@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}"
+    th:dir="${#locale.language == 'ar' ? 'rtl' : 'ltr'}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Notifications | CommonWealth</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/user-sidebar.css}">
+    <style>
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .notification-item {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .notification-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .unread {
+            border-left: 4px solid #4D9FFF;
+            background-color: #f0f7ff;
+        }
+
+        .notification-time {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 0.25rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-don {
+            background-color: #d1fae5;
+            color: #047857;
+        }
+
+        .badge-participation {
+            background-color: #e6f2ff;
+            color: #4D9FFF;
+        }
+
+        .badge-message {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-rappel {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .badge-system {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+
+        .filter-btn {
+            border-radius: 30px;
+            padding: 0.4rem 1rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .filter-btn.active {
+            background-color: #4D9FFF;
+            color: white;
+        }
+
+        .notification-preview {
+            position: relative;
+        }
+
+        .notification-preview:hover .notification-tooltip {
+            display: block;
+        }
+
+        .notification-tooltip {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            z-index: 100;
+            width: 300px;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .no-notifications {
+            text-align: center;
+            padding: 3rem 0;
+        }
+
+        .no-notifications-icon {
+            font-size: 3rem;
+            color: #dee2e6;
+            margin-bottom: 1rem;
+        }
+
+        /* Style pour la section des paramètres de notifications */
+        .settings-section {
+            border-top: 1px solid #dee2e6;
+            margin-top: 2rem;
+            padding-top: 2rem;
+        }
+
+        /* Style pour le badge de compteur */
+        .counter-badge {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div th:replace="~{fragments/user-sidebar :: sidebar}"></div>
+
+    <!-- Main Content -->
+    <div class="content-with-sidebar">
+        <div class="container py-4">
+            <!-- En-tête et actions -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="fw-bold mb-0">Mes Notifications
+                        <span th:if="${unreadCount > 0}" class="badge bg-danger rounded-pill ms-2"
+                            th:text="${unreadCount}">3</span>
+                    </h2>
+                    <p class="text-muted">Restez informé de toutes vos activités</p>
+                </div>
+                <form th:action="@{/user/notifications/mark-all-read}" method="post">
+                    <button type="submit" class="btn btn-outline-primary">
+                        <i class="fas fa-check-double me-2"></i>Tout marquer comme lu
+                    </button>
+                </form>
+            </div>
+
+            <!-- Messages de feedback -->
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <span th:text="${success}">Opération réussie</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <span th:text="${error}">Une erreur est survenue</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${info}" class="alert alert-info alert-dismissible fade show" role="alert">
+                <i class="fas fa-info-circle me-2"></i>
+                <span th:text="${info}">Information</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <div class="row">
+                <!-- Filtres et compteurs -->
+                <div class="col-md-3">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title h6 mb-0">Filtres</h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Filtres par type -->
+                            <div class="mb-3">
+                                <h6 class="text-muted small text-uppercase mb-2">TYPE</h6>
+                                <div>
+                                    <a th:href="@{/user/notifications}"
+                                        th:class="${selectedType == 'Tous' ? 'filter-btn btn btn-sm active' : 'filter-btn btn btn-sm btn-outline-secondary'}"
+                                        class="filter-btn btn btn-sm btn-outline-secondary">
+                                        Tous
+                                        <span class="counter-badge bg-secondary ms-1"
+                                            th:text="${notificationsByType['Tous']}">12</span>
+                                    </a>
+                                    <a th:href="@{/user/notifications(type='Non lus')}"
+                                        th:class="${selectedType == 'Non lus' ? 'filter-btn btn btn-sm active' : 'filter-btn btn btn-sm btn-outline-danger'}"
+                                        class="filter-btn btn btn-sm btn-outline-danger">
+                                        Non lus
+                                        <span class="counter-badge bg-danger ms-1"
+                                            th:text="${notificationsByType['Non lus']}">3</span>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Catégories -->
+                            <div class="mb-3">
+                                <h6 class="text-muted small text-uppercase mb-2">CATÉGORIE</h6>
+                                <div>
+                                    <a href="#" class="filter-btn btn btn-sm btn-outline-secondary">Dons</a>
+                                    <a href="#" class="filter-btn btn btn-sm btn-outline-secondary">Participations</a>
+                                    <a href="#" class="filter-btn btn btn-sm btn-outline-secondary">Rappels</a>
+                                    <a href="#" class="filter-btn btn btn-sm btn-outline-secondary">Système</a>
+                                </div>
+                            </div>
+
+                            <!-- Paramètres -->
+                            <div class="settings-section">
+                                <h6 class="text-muted small text-uppercase mb-2">PARAMÈTRES</h6>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="donsNotif" checked>
+                                    <label class="form-check-label" for="donsNotif">Notifications de dons</label>
+                                </div>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="participationsNotif" checked>
+                                    <label class="form-check-label" for="participationsNotif">Notifications de
+                                        participations</label>
+                                </div>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="messagesNotif" checked>
+                                    <label class="form-check-label" for="messagesNotif">Notifications de
+                                        messages</label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="rappelsNotif" checked>
+                                    <label class="form-check-label" for="rappelsNotif">Rappels d'événements</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Liste des notifications -->
+                <div class="col-md-9">
+                    <div class="card">
+                        <div class="card-body">
+                            <!-- État vide -->
+                            <div th:if="${#lists.isEmpty(notifications)}" class="no-notifications">
+                                <div class="no-notifications-icon">
+                                    <i class="far fa-bell-slash"></i>
+                                </div>
+                                <h4 class="mb-2">Aucune notification</h4>
+                                <p class="text-muted mb-4">Vous n'avez pas encore reçu de notifications.</p>
+                                <a th:href="@{/organisation/actions/public/list}" class="btn btn-primary">
+                                    Découvrir les actions
+                                </a>
+                            </div>
+
+                            <!-- Liste des notifications -->
+                            <div th:unless="${#lists.isEmpty(notifications)}" class="notification-list">
+                                <!-- Notification -->
+                                <div th:each="notification : ${notifications}"
+                                    th:class="${notification.lu ? 'notification-item card p-3 mb-3' : 'notification-item card p-3 mb-3 unread'}"
+                                    class="notification-item card p-3 mb-3">
+
+                                    <!-- Badge par type (simulé ici car pas de champ type dans l'entité) -->
+                                    <div class="notification-badge badge-don"
+                                        th:if="${notification.titre != null && notification.titre.contains('don')}">Don
+                                    </div>
+                                    <div class="notification-badge badge-participation"
+                                        th:if="${notification.titre != null && notification.titre.contains('particip')}">
+                                        Participation</div>
+                                    <div class="notification-badge badge-rappel"
+                                        th:if="${notification.titre != null && notification.titre.contains('rappel')}">
+                                        Rappel</div>
+                                    <div class="notification-badge badge-message"
+                                        th:if="${notification.titre != null && notification.titre.contains('message')}">
+                                        Message</div>
+                                    <div class="notification-badge badge-system"
+                                        th:if="${!notification.titre.contains('don') && !notification.titre.contains('particip') && !notification.titre.contains('rappel') && !notification.titre.contains('message')}">
+                                        Système</div>
+
+                                    <div class="notification-preview">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <h5 class="mb-1" th:text="${notification.titre}">Titre de la notification
+                                            </h5>
+                                            <span class="notification-time"
+                                                th:text="${#temporals.format(notification.dateCreation, 'dd/MM/yyyy HH:mm')}">01/01/2023
+                                                12:00</span>
+                                        </div>
+                                        <p class="text-muted mb-3"
+                                            th:text="${#strings.abbreviate(notification.contenu, 100)}">
+                                            Contenu de la notification...</p>
+
+                                        <!-- Actions sur la notification -->
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <!-- Lien vers l'action concernée (si existe) -->
+                                                <a th:if="${notification.action != null}"
+                                                    th:href="@{/organisation/actions/public/{id}(id=${notification.action.id})}"
+                                                    class="btn btn-sm btn-outline-primary me-2">
+                                                    <i class="fas fa-external-link-alt me-1"></i>Voir l'action
+                                                </a>
+                                            </div>
+
+                                            <div>
+                                                <!-- Boutons de gestion -->
+                                                <form th:if="${!notification.lu}"
+                                                    th:action="@{/user/notifications/{id}/mark-read(id=${notification.id})}"
+                                                    method="post" class="d-inline">
+                                                    <button type="submit" class="btn btn-sm btn-outline-secondary me-1">
+                                                        <i class="fas fa-check me-1"></i>Marquer comme lu
+                                                    </button>
+                                                </form>
+                                                <form th:if="${notification.lu}"
+                                                    th:action="@{/user/notifications/{id}/mark-unread(id=${notification.id})}"
+                                                    method="post" class="d-inline">
+                                                    <button type="submit" class="btn btn-sm btn-outline-secondary me-1">
+                                                        <i class="fas fa-undo me-1"></i>Marquer non lu
+                                                    </button>
+                                                </form>
+                                                <form
+                                                    th:action="@{/user/notifications/{id}/delete(id=${notification.id})}"
+                                                    method="post" class="d-inline"
+                                                    onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette notification?');">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+
+                                        <!-- Tooltip de prévisualisation (apparaît au survol) -->
+                                        <div class="notification-tooltip">
+                                            <h6 th:text="${notification.titre}">Titre complet</h6>
+                                            <p class="mb-1" th:text="${notification.contenu}">Contenu complet de la
+                                                notification.</p>
+                                            <small class="text-muted"
+                                                th:text="${#temporals.format(notification.dateCreation, 'dd/MM/yyyy HH:mm')}">
+                                                01/01/2023 12:00</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/user-sidebar.js}"></script>
+    <script>
+        // Pour la démonstration: les paramètres de notification ne font rien actuellement
+        // Ce code simulerait l'envoi des préférences de notification au serveur
+        document.querySelectorAll('.form-check-input').forEach(checkbox => {
+            checkbox.addEventListener('change', function () {
+                console.log(`Notification "${this.id}" est maintenant ${this.checked ? 'activée' : 'désactivée'}`);
+                // Ici on pourrait appeler une API pour enregistrer les préférences
+            });
+        });
+    </script>
+</body>
+
+</html>

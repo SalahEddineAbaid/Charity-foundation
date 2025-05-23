@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${action.titre} + ' | CommonWealth'">Détails de l'action | CommonWealth</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .action-header {
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .action-image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .info-card {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 1.5rem;
+        }
+
+        .donation-form {
+            position: sticky;
+            top: 20px;
+        }
+
+        .progress {
+            height: 0.8rem;
+            border-radius: 1rem;
+            margin: 1rem 0;
+        }
+
+        .category-badge {
+            display: inline-block;
+            padding: 0.35rem 0.85rem;
+            border-radius: 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background-color: #e6f2ff;
+            color: #4D9FFF;
+            margin-bottom: 1rem;
+        }
+
+        .action-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .action-org {
+            font-size: 1.1rem;
+            color: #6c757d;
+            margin-bottom: 1rem;
+        }
+
+        .action-description {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .donation-amount-btn {
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            margin: 0 0.25rem 0.5rem 0;
+        }
+
+        .donation-input {
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .nav-link {
+            color: #4D9FFF;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            color: #3d7fcc;
+        }
+
+        .participation-block {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #dee2e6;
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container py-5">
+        <!-- Navigation menu -->
+        <div class="bg-white p-3 mb-4 rounded shadow-sm">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <a href="/organisation/actions/public/list" class="btn btn-outline-primary me-2">
+                        <i class="fas fa-arrow-left me-1"></i> Toutes les actions
+                    </a>
+                </div>
+                <div>
+                    <a href="/user/dons" class="btn btn-outline-secondary me-2">
+                        <i class="fas fa-history me-1"></i> Mes dons
+                    </a>
+                    <a href="/participations" class="btn btn-outline-secondary me-2" sec:authorize="isAuthenticated()">
+                        <i class="fas fa-calendar-check me-1"></i> Mes participations
+                    </a>
+                    <a href="/login" class="btn btn-outline-secondary" sec:authorize="!isAuthenticated()">
+                        <i class="fas fa-sign-in-alt me-1"></i> Connexion
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-header">
+            <!-- Afficher les messages de succès ou d'erreur -->
+            <div th:if="${success != null}" class="alert alert-success mb-4 alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <span th:text="${success}">Message de succès</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${error != null}" class="alert alert-danger mb-4 alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <span th:text="${error}">Message d'erreur</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div class="row">
+                <div class="col-lg-8">
+                    <!-- Action image -->
+                    <img th:if="${action.imageUrl != null}" th:src="${action.imageUrl}" class="action-image"
+                        alt="Image de l'action">
+                    <img th:unless="${action.imageUrl != null}" src="/images/default-action.jpg" class="action-image"
+                        alt="Image par défaut">
+
+                    <!-- Category badge -->
+                    <div th:if="${action.categorie != null}" class="category-badge" th:text="${action.categorie.nom}">
+                        Catégorie</div>
+
+                    <!-- Action title -->
+                    <h1 class="action-title" th:text="${action.titre}">Titre de l'action</h1>
+
+                    <!-- Organization -->
+                    <p th:if="${action.organisation != null}" class="action-org">
+                        Par <span th:text="${action.organisation.nom}">Nom de l'organisation</span>
+                    </p>
+
+                    <!-- Action stats -->
+                    <div class="row mb-3" th:if="${action.objectifCollecte > 0}">
+                        <div class="col-md-4">
+                            <div class="fw-bold text-success"
+                                th:text="${#numbers.formatDecimal(action.montantCollecte, 0, 'WHITESPACE', 2, 'POINT') + ' €'}">
+                                0.00 €</div>
+                            <div class="text-muted small">Montant collecté</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="fw-bold"
+                                th:text="${#numbers.formatDecimal(action.objectifCollecte, 0, 'WHITESPACE', 2, 'POINT') + ' €'}">
+                                0.00 €</div>
+                            <div class="text-muted small">Objectif</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="fw-bold"
+                                th:text="${action.montantCollecte > 0 && action.objectifCollecte > 0 ? #numbers.formatPercent(action.montantCollecte / action.objectifCollecte, 0, 0) : '0%'}">
+                                0%</div>
+                            <div class="text-muted small">Complété</div>
+                        </div>
+                    </div>
+
+                    <!-- Progress bar -->
+                    <div class="progress" th:if="${action.objectifCollecte > 0}">
+                        <div class="progress-bar bg-success" role="progressbar"
+                            th:style="'width: ' + ${(action.montantCollecte / action.objectifCollecte) * 100 < 100 ? (action.montantCollecte / action.objectifCollecte) * 100 : 100} + '%'"
+                            th:aria-valuenow="${action.montantCollecte}" aria-valuemin="0"
+                            th:aria-valuemax="${action.objectifCollecte}"></div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="donation-form info-card p-4">
+                        <h3>Faire un don</h3>
+                        <p class="text-muted">Votre générosité contribue directement à cette action.</p>
+
+                        <!-- Donation form (simplified) -->
+                        <form th:action="@{/dons/submit}" method="post">
+                            <input type="hidden" name="actionId" th:value="${action.id}">
+                            <div class="mb-3">
+                                <label class="form-label">Montant</label>
+                                <div class="mb-2">
+                                    <button type="button" onclick="setAmount(5)"
+                                        class="btn btn-outline-primary donation-amount-btn">5 €</button>
+                                    <button type="button" onclick="setAmount(10)"
+                                        class="btn btn-outline-primary donation-amount-btn">10 €</button>
+                                    <button type="button" onclick="setAmount(20)"
+                                        class="btn btn-outline-primary donation-amount-btn">20 €</button>
+                                    <button type="button" onclick="setAmount(50)"
+                                        class="btn btn-outline-primary donation-amount-btn">50 €</button>
+                                </div>
+                                <div class="input-group">
+                                    <input type="number" min="1" step="0.01" class="form-control donation-input"
+                                        id="donation-amount" name="montant" placeholder="Autre montant" required>
+                                    <span class="input-group-text">€</span>
+                                </div>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    <i class="fas fa-heart me-2"></i>Faire un don
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Action info -->
+                        <hr class="my-4">
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-calendar-alt text-muted me-2"></i>
+                                <div>
+                                    <div class="small text-muted">Début de campagne</div>
+                                    <div th:if="${action.dateDebut != null}"
+                                        th:text="${#temporals.format(action.dateDebut, 'dd/MM/yyyy')}">01/01/2023</div>
+                                    <div th:unless="${action.dateDebut != null}">Non spécifié</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-map-marker-alt text-muted me-2"></i>
+                                <div>
+                                    <div class="small text-muted">Lieu</div>
+                                    <div th:text="${action.lieu != null ? action.lieu : 'Non spécifié'}">Lieu</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3" th:if="${action.dateFin != null}">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-clock text-muted me-2"></i>
+                                <div>
+                                    <div class="small text-muted">Fin de campagne</div>
+                                    <div th:text="${#temporals.format(action.dateFin, 'dd/MM/yyyy')}">31/12/2023</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bouton pour participer à l'action -->
+                        <div class="participation-block">
+                            <h5>Participation à l'événement</h5>
+                            <p class="text-muted">Cette action nécessite des bénévoles. Inscrivez-vous pour participer !
+                            </p>
+
+                            <!-- Bouton d'inscription uniquement pour les utilisateurs connectés -->
+                            <div sec:authorize="isAuthenticated()">
+                                <a th:href="@{/participations/inscrire/action/{id}(id=${action.id})}"
+                                    class="btn btn-primary btn-lg w-100">
+                                    <i class="fas fa-user-plus me-2"></i>Je participe
+                                </a>
+                            </div>
+
+                            <!-- Message pour les utilisateurs non connectés -->
+                            <div sec:authorize="!isAuthenticated()" class="text-center">
+                                <p>Connectez-vous pour participer à cette action</p>
+                                <a th:href="@{/login}" class="btn btn-outline-primary">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Se connecter
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action description -->
+        <div class="info-card p-4">
+            <h3>À propos de cette action</h3>
+            <div class="action-description mt-3" th:utext="${action.description}">
+                Description détaillée de l'action...
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function setAmount(amount) {
+            document.getElementById('donation-amount').value = amount;
+        }
+
+        // Pré-remplir le montant du don si spécifié dans l'URL
+        document.addEventListener('DOMContentLoaded', function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const montant = urlParams.get('montant');
+            if (montant) {
+                setAmount(montant);
+            }
+        });
+    </script>
+</body>
+
+</html>

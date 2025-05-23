@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title th:text="${action.id == null ? 'Créer' : 'Modifier'} + ' une action'"></title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+
+<body>
+    <section layout:fragment="content">
+        <div class="container mt-5">
+            <h2 th:text="${action.id == null ? 'Créer' : 'Modifier'} + ' une action de charité'"></h2>
+            <form th:object="${action}" th:action="@{/organisation/actions/create}" method="post"
+                enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label>Titre *</label>
+                    <input type="text" th:field="*{titre}" class="form-control" required placeholder="Titre">
+                    <div th:if="${#fields.hasErrors('titre')}" th:errors="*{titre}" class="text-danger"></div>
+                </div>
+                <div class="mb-3">
+                    <label>Description *</label>
+                    <textarea th:field="*{description}" class="form-control" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label>Lieu</label>
+                    <input type="text" th:field="*{lieu}" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label>Date début</label>
+                    <input type="date" th:field="*{dateDebut}" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label>Date fin</label>
+                    <input type="date" th:field="*{dateFin}" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label>Objectif montant (€)</label>
+                    <input type="number" th:field="*{objectifCollecte}" required />
+                </div>
+                <div class="mb-3">
+                    <label>Image</label>
+                    <input type="file" name="imageFile" accept="image/*" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label>Vidéo (URL YouTube ou Vimeo)</label>
+                    <input type="url" th:field="*{videoUrl}" class="form-control"
+                        placeholder="https://youtube.com/..." />
+                </div>
+                <button type="submit" class="btn btn-primary"
+                    th:text="${action.id == null ? 'Créer l''action' : 'Mettre à jour'}"></button>
+            </form>
+        </div>
+    </section>
+</body>
+
+</html>

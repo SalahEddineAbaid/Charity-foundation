@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layout}">
+
+<head>
+    <title>Liste des utilisateurs</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <section layout:fragment="content">
+        <div th:fragment="userTable">
+            <div class="bg-white p-6 rounded-xl shadow max-w-7xl mx-auto">
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
+                    <h1 class="text-2xl font-bold text-gray-800">Liste des utilisateurs</h1>
+                    <!-- Search input -->
+                    <div class="relative w-full sm:w-auto">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                            <i class="fas fa-search text-gray-400"></i>
+                        </span>
+                        <input type="text" id="searchInput" placeholder="Rechercher un utilisateur..."
+                            class="border border-gray-300 rounded-lg pl-10 pr-4 py-2 w-full sm:w-72 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="table-auto w-full border-collapse shadow rounded-lg border-gray-200">
+                        <thead class="bg-gray-100 text-left">
+                            <tr>
+                                <th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Nom
+                                </th>
+                                <th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Prénom
+                                </th>
+                                <th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Email
+                                </th>
+                                <th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Rôle(s)
+                                </th>
+                                <th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Statut
+                                </th>
+                                <th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Actions
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <tr th:each="user, iterStat : ${utilisateurs}"
+                                th:class="${iterStat.even} ? 'bg-gray-50' : 'bg-white'">
+                                <td class="px-4 py-3 text-sm text-gray-900" th:text="${user.nom}">Nom</td>
+                                <td class="px-4 py-3 text-sm text-gray-900" th:text="${user.prenom}">Prénom</td>
+                                <td class="px-4 py-3 text-sm text-gray-900" th:text="${user.email}">Email</td>
+                                <td class="px-4 py-3 text-sm text-gray-900">
+                                    <span th:each="role : ${user.roles}"
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-1"
+                                        th:text="${#strings.replace(role, 'ROLE_', '')}">
+                                        Rôle
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 text-sm">
+                                    <span th:if="${user.enabled}"
+                                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        Actif
+                                    </span>
+                                    <span th:unless="${user.enabled}"
+                                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                        Inactif
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 text-sm">
+                                    <div class="flex flex-col space-y-2 sm:flex-row sm:space-x-2 sm:space-y-0">
+                                        <form th:action="@{'/admin/utilisateurs/' + ${user.id} + '/toggle'}"
+                                            method="post" class="inline">
+                                            <button th:if="${user.enabled}" type="submit"
+                                                class="bg-red-500 hover:bg-red-600 text-white rounded px-3 py-1 flex items-center">
+                                                <i class="fas fa-lock mr-1"></i> Désactiver
+                                            </button>
+                                            <button th:unless="${user.enabled}" type="submit"
+                                                class="bg-green-500 hover:bg-green-600 text-white rounded px-3 py-1 flex items-center">
+                                                <i class="fas fa-unlock mr-1"></i> Activer
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            <!-- Empty state message -->
+                            <tr th:if="${utilisateurs.empty}">
+                                <td colspan="6" class="px-4 py-8 text-center text-gray-500">
+                                    <div class="flex flex-col items-center">
+                                        <i class="fas fa-users text-4xl mb-2 text-gray-300"></i>
+                                        <p>Aucun utilisateur trouvé</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- JavaScript for search functionality -->
+        <script>
+            document.getElementById('searchInput').addEventListener('keyup', function () {
+                const searchValue = this.value.toLowerCase();
+                const tableRows = document.querySelectorAll('tbody tr');
+
+                tableRows.forEach(row => {
+                    if (row.querySelector('td[colspan="6"]')) return; // Skip empty state row
+
+                    const name = row.children[0].textContent.toLowerCase();
+                    const firstName = row.children[1].textContent.toLowerCase();
+                    const email = row.children[2].textContent.toLowerCase();
+
+                    if (name.includes(searchValue) || firstName.includes(searchValue) || email.includes(searchValue)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        </script>
+    </section>
+</body>
+
+</html>

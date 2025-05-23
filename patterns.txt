@@ -1,0 +1,6 @@
+spring.security.oauth2.client.registration.google.client-id=
+spring.security.oauth2.client.registration.google.client-secret=
+stripe.api.key=
+stripe.webhook.secret=
+spring.mail.username=
+spring.mail.password= 

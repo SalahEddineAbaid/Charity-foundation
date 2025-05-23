@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}"
+    th:dir="${#locale.language == 'ar' ? 'rtl' : 'ltr'}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes dons | CommonWealth</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/user-sidebar.css}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .stat-card {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card .card-body {
+            padding: 1.5rem;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #4D9FFF;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .action-title {
+            font-weight: 600;
+            color: #333;
+            text-decoration: none;
+        }
+
+        .action-title:hover {
+            color: #4D9FFF;
+        }
+
+        .donation-amount {
+            font-weight: 700;
+            color: #FF914D;
+            font-size: 1.2rem;
+        }
+
+        .donation-date {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        .badge-status {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 10px;
+        }
+
+        .status-completed {
+            background: #d1fae5;
+            color: #047857;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-failed {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .receipt-btn {
+            background: #e9ecef;
+            color: #495057;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .receipt-btn:hover {
+            background: #4D9FFF;
+            color: white;
+        }
+
+        .action-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .filter-card {
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        /* Compact chart height */
+        .chart-container {
+            height: 300px;
+            margin-bottom: 1.5rem;
+        }
+
+        /* More compact spacing */
+        .donations-container {
+            padding: 1.5rem;
+        }
+
+        .page-header {
+            margin-bottom: 1.5rem;
+        }
+
+        /* Optimize table for better scrolling */
+        .table-responsive {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .table th {
+            position: sticky;
+            top: 0;
+            background: #f8f9fa;
+            z-index: 1;
+        }
+
+        .donation-card {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div th:replace="~{fragments/user-sidebar :: sidebar}"></div>
+
+    <!-- Main Content -->
+    <div class="content-with-sidebar">
+        <div class="donations-container">
+            <div class="page-header d-flex justify-content-between align-items-center">
+                <h2 class="fw-bold">Mon historique de dons</h2>
+                <a th:href="@{/organisation/actions/public/list}" class="btn btn-success btn-sm">
+                    <i class="fas fa-heart me-2"></i> Faire un nouveau don
+                </a>
+            </div>
+
+            <div th:if="${#lists.isEmpty(dons)}" class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i> Vous n'avez pas encore fait de dons.
+                <a th:href="@{/organisation/actions/public/list}" class="alert-link">Découvrir les actions</a>
+            </div>
+
+            <div th:unless="${#lists.isEmpty(dons)}">
+                <!-- Statistiques -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="stat-card card h-100">
+                            <div class="card-body">
+                                <h6 class="stat-label">Total donné</h6>
+                                <div class="stat-number"
+                                    th:text="${#numbers.formatDecimal(totalDonated, 0, 'WHITESPACE', 2, 'POINT') + ' €'}">
+                                    0.00 €</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card card h-100">
+                            <div class="card-body">
+                                <h6 class="stat-label">Nombre de dons</h6>
+                                <div class="stat-number" th:text="${donCount}">0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card card h-100">
+                            <div class="card-body">
+                                <h6 class="stat-label">Don moyen</h6>
+                                <div class="stat-number"
+                                    th:text="${donCount > 0 ? #numbers.formatDecimal(totalDonated/donCount, 0, 'WHITESPACE', 2, 'POINT') + ' €' : '0.00 €'}">
+                                    0.00 €</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card card h-100">
+                            <div class="card-body">
+                                <h6 class="stat-label">Actions soutenues</h6>
+                                <div class="stat-number" th:text="${uniqueActionCount}">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filtres et graphique -->
+                <div class="row mb-4">
+                    <!-- Filtres -->
+                    <div class="col-md-4">
+                        <div class="card filter-card">
+                            <div class="card-body">
+                                <h5 class="card-title h6 mb-3">Filtrer mes dons</h5>
+                                <form th:action="@{/user/dons}" method="get">
+                                    <div class="mb-3">
+                                        <label for="startDate" class="form-label">Date début</label>
+                                        <input type="date" class="form-control form-control-sm" id="startDate"
+                                            name="startDate" th:value="${param.startDate}">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="endDate" class="form-label">Date fin</label>
+                                        <input type="date" class="form-control form-control-sm" id="endDate"
+                                            name="endDate" th:value="${param.endDate}">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="actionId" class="form-label">Action</label>
+                                        <select class="form-select form-select-sm" id="actionId" name="actionId">
+                                            <option value="">Toutes les actions</option>
+                                            <option th:each="action : ${uniqueActions}" th:value="${action.id}"
+                                                th:text="${action.titre}"
+                                                th:selected="${param.actionId != null && param.actionId[0] == action.id.toString()}">
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="d-flex">
+                                        <button type="submit" class="btn btn-primary btn-sm me-2">Appliquer</button>
+                                        <a th:href="@{/user/dons}"
+                                            class="btn btn-outline-secondary btn-sm">Réinitialiser</a>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Graphique -->
+                    <div class="col-md-8">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title h6 mb-3">Évolution de mes dons</h5>
+                                <div class="chart-container">
+                                    <canvas id="donationsChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Liste des dons -->
+                <h5 class="mb-3">Liste de mes dons</h5>
+                <div class="row">
+                    <div th:each="don : ${dons}" class="col-md-6 col-lg-4">
+                        <div class="donation-card card">
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${don.action != null ? don.action.titre : 'Don'}">Action
+                                </h5>
+                                <h6 class="card-subtitle mb-2 text-muted"
+                                    th:text="${#temporals.format(don.dateDon, 'dd/MM/yyyy HH:mm')}">Date</h6>
+                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <span class="fw-bold text-success"
+                                        th:text="${#numbers.formatDecimal(don.montant, 0, 'WHITESPACE', 2, 'POINT') + ' €'}">0.00
+                                        €</span>
+                                    <a th:href="@{/dons/recu-pdf/{id}(id=${don.id})}"
+                                        class="btn btn-sm btn-outline-secondary" target="_blank">
+                                        <i class="fas fa-file-pdf me-1"></i> Reçu
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <a th:if="${don.action != null}"
+                                    th:href="@{/organisation/actions/public/{id}(id=${don.action.id})}"
+                                    class="btn btn-link btn-sm px-0">
+                                    <i class="fas fa-arrow-right me-1"></i> Voir l'action
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/user-sidebar.js}"></script>
+
+    <!-- Script pour le graphique -->
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            // Récupérer les données du modèle
+            const chartData = /*[[${chartData}]]*/ {};
+
+            if (Object.keys(chartData).length > 0) {
+                const ctx = document.getElementById('donationsChart').getContext('2d');
+
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: Object.keys(chartData),
+                        datasets: [{
+                            label: 'Montant des dons (€)',
+                            data: Object.values(chartData),
+                            backgroundColor: 'rgba(77, 159, 255, 0.2)',
+                            borderColor: 'rgba(77, 159, 255, 1)',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function (value) {
+                                        return value + ' €';
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        return context.dataset.label + ': ' + context.parsed.y + ' €';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

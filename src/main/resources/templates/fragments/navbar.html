@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+</head>
+
+<body>
+    <!-- Fragment de la barre de navigation principale -->
+    <nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-light sticky-top">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/}">
+                <img src="/images/logo.png" alt="CommonWealth Logo" height="48">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/}" th:classappend="${currentPath == '/' ? 'active' : ''}"
+                            th:text="#{nav.home}">Accueil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/organisation/actions/public/list}"
+                            th:classappend="${currentPath != null and currentPath.startsWith('/organisation/actions/public/list') ? 'active' : ''}"
+                            th:text="#{nav.campaigns}">Campagnes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/participations}"
+                            th:classappend="${currentPath != null and currentPath.startsWith('/participations') ? 'active' : ''}"
+                            th:text="#{nav.volunteer}">Devenir bénévole</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/organisation/actions/public/list}"
+                            th:classappend="${currentPath != null and currentPath.startsWith('/organisation/actions/public') ? 'active' : ''}">Actions</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <!-- Bouton Créer un site pour les organisations -->
+                    <a th:href="@{/create-site}" class="btn btn-sm btn-primary me-3" th:text="#{create.site}"
+                        sec:authorize="!isAuthenticated()">Créer votre site</a>
+
+                    <!-- Sélecteur de devise -->
+                    <div class="dropdown me-3">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
+                            id="currencyDropdown" data-bs-toggle="dropdown">
+                            <span th:text="${#locale.language == 'fr' ? '€' : '€'}">€</span>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="currencyDropdown">
+                            <li><a class="dropdown-item" href="#" onclick="changeCurrency('EUR')">EUR (€)</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="changeCurrency('USD')">USD ($)</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="changeCurrency('GBP')">GBP (£)</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Sélecteur de langue -->
+                    <div class="dropdown me-3">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle language-selector" type="button"
+                            id="languageDropdown" data-bs-toggle="dropdown">
+                            <img th:src="${#locale.language == 'fr' ? 'https://flagcdn.com/w20/fr.png' : (#locale.language == 'ar' ? 'https://flagcdn.com/w20/sa.png' : 'https://flagcdn.com/w20/gb.png')}"
+                                alt="Language">
+                            <span
+                                th:text="${#locale.language == 'fr' ? 'FR' : (#locale.language == 'ar' ? 'AR' : 'EN')}">FR</span>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="languageDropdown">
+                            <li>
+                                <a class="dropdown-item"
+                                    th:href="@{${currentPath != null ? currentPath : '/'}(lang='fr')}">
+                                    <img src="https://flagcdn.com/w20/fr.png" alt="Français"> Français
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item"
+                                    th:href="@{${currentPath != null ? currentPath : '/'}(lang='en')}">
+                                    <img src="https://flagcdn.com/w20/gb.png" alt="English"> English
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item"
+                                    th:href="@{${currentPath != null ? currentPath : '/'}(lang='ar')}">
+                                    <img src="https://flagcdn.com/w20/sa.png" alt="العربية"> العربية
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Bouton Faire un don -->
+                    <a th:href="@{/donate}" class="btn btn-sm btn-outline-primary me-2">
+                        <i class="fas fa-heart"></i> <span th:text="#{nav.donate}">Faire un don</span>
+                    </a>
+
+                    <!-- Bouton S'inscrire -->
+                    <a th:href="@{/signup}" class="btn btn-sm btn-primary me-2" th:text="#{nav.signup}"
+                        sec:authorize="!isAuthenticated()">S'inscrire</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</body>
+
+</html>

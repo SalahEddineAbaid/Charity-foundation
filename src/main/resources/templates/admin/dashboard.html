@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layout}">
+
+<head>
+    <title>Dashboard Administrateur</title>
+</head>
+
+<body>
+    <section layout:fragment="content">
+        <h1 class="text-3xl font-extrabold mb-8 text-gray-800 dark:text-gray-100">Dashboard Administrateur</h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <!-- Carte Utilisateurs -->
+            <div
+                class="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition transform hover:scale-105 duration-300 p-6 flex items-center gap-4">
+                <div class="flex items-center justify-center w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-900">
+                    <i class="fa fa-users text-3xl text-blue-500"></i>
+                </div>
+                <div>
+                    <div class="text-sm font-medium text-gray-500 dark:text-gray-300">Utilisateurs</div>
+                    <div class="text-3xl font-bold text-gray-800 dark:text-gray-100" th:text="${totalUtilisateurs}">0
+                    </div>
+                </div>
+            </div>
+            <!-- Carte Organisations en attente -->
+            <div
+                class="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition transform hover:scale-105 duration-300 p-6 flex items-center gap-4">
+                <div class="flex items-center justify-center w-14 h-14 rounded-full bg-green-100 dark:bg-green-900">
+                    <i class="fa fa-building text-3xl text-green-500"></i>
+                </div>
+                <div>
+                    <div class="text-sm font-medium text-gray-500 dark:text-gray-300">Organisations en attente</div>
+                    <div class="text-3xl font-bold text-gray-800 dark:text-gray-100" th:text="${orgsEnAttente}">0</div>
+                </div>
+            </div>
+            <!-- Carte Actions actives -->
+            <div
+                class="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition transform hover:scale-105 duration-300 p-6 flex items-center gap-4">
+                <div class="flex items-center justify-center w-14 h-14 rounded-full bg-purple-100 dark:bg-purple-900">
+                    <i class="fa fa-heart text-3xl text-purple-500"></i>
+                </div>
+                <div>
+                    <div class="text-sm font-medium text-gray-500 dark:text-gray-300">Actions actives</div>
+                    <div class="text-3xl font-bold text-gray-800 dark:text-gray-100" th:text="${actionsActives}">0</div>
+                </div>
+            </div>
+            <!-- Carte Montant collecté -->
+            <div
+                class="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition transform hover:scale-105 duration-300 p-6 flex items-center gap-4">
+                <div class="flex items-center justify-center w-14 h-14 rounded-full bg-orange-100 dark:bg-orange-900">
+                    <i class="fa fa-coins text-3xl text-orange-500"></i>
+                </div>
+                <div>
+                    <div class="text-sm font-medium text-gray-500 dark:text-gray-300">Montant collecté (€)</div>
+                    <div class="text-3xl font-bold text-gray-800 dark:text-gray-100" th:text="${montantTotalDons}">0.00
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Graphique Actions par mois -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                <h2 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-200">Actions créées par mois</h2>
+                <canvas id="actionsParMoisChart" class="w-full"></canvas>
+                <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">Nombre d'actions créées chaque mois</div>
+            </div>
+            <!-- Graphique Répartition utilisateurs -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                <h2 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-200">Répartition des utilisateurs par
+                    rôle</h2>
+                <canvas id="rolesChart" class="w-full"></canvas>
+                <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">Pourcentage par rôle</div>
+            </div>
+        </div>
+        <!-- Chart.js scripts -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script th:inline="javascript">
+            // Actions par mois
+            const actionsParMoisLabels = /*[[${actionsParMois.keySet()}]]*/["Jan", "Fév", "Mar"];
+            const actionsParMoisData = /*[[${actionsParMois.values()}]]*/[2, 5, 3];
+            new Chart(document.getElementById('actionsParMoisChart'), {
+                type: 'bar',
+                data: {
+                    labels: actionsParMoisLabels,
+                    datasets: [{
+                        label: 'Actions',
+                        data: actionsParMoisData,
+                        backgroundColor: 'rgba(139, 92, 246, 0.5)',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            // Répartition utilisateurs
+            const rolesLabels = /*[[${rolesLabels}]]*/["ADMIN", "ORGANISATION", "UTILISATEUR"];
+            let rolesData = /*[[${rolesData}]]*/[1, 0, 0];
+
+            // Optionnel : pour forcer l'affichage de segments très fins
+            rolesData = rolesData.map(v => v === 0 ? 0.0001 : v);
+
+            new Chart(document.getElementById('rolesChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: rolesLabels,
+                    datasets: [{
+                        data: rolesData,
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.7)',
+                            'rgba(16, 185, 129, 0.7)',
+                            'rgba(251, 191, 36, 0.7)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    plugins: { legend: { position: 'bottom', labels: { font: { size: 14 } } } }
+                }
+            });
+        </script>
+    </section>
+</body>
+
+</html>

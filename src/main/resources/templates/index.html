@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}"
+    th:dir="${#locale.language == 'ar' ? 'rtl' : 'ltr'}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="#{hero.title}">CommonWealth</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Nunito:wght@400;700&family=Poppins:wght@400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF914D;
+            --secondary: #4D9FFF;
+            --bg: #F7F8FA;
+            --dark: #22223B;
+            --light: #fff;
+        }
+
+        body {
+            font-family: 'Inter', 'Nunito', 'Poppins', Arial, sans-serif;
+            background: var(--bg);
+            color: var(--dark);
+        }
+
+        .navbar,
+        .footer {
+            background: var(--light);
+            box-shadow: 0 2px 8px rgba(77, 159, 255, 0.04);
+        }
+
+        .navbar-brand img {
+            height: 48px;
+        }
+
+        .nav-link,
+        .navbar-brand {
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: #ff7a26;
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            border: none;
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            background: #2176c1;
+        }
+
+        .hero-section {
+            background: linear-gradient(90deg, #FF914D 0%, #4D9FFF 100%);
+            color: #fff;
+            padding: 80px 0 40px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-title {
+            font-size: 2.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .hero-tagline {
+            font-size: 1.4rem;
+            font-weight: 400;
+            margin-bottom: 2rem;
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 1s forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .stats-section {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(77, 159, 255, 0.07);
+            margin-top: -40px;
+            padding: 40px 0;
+        }
+
+        .stat-item {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .stat-icon {
+            font-size: 2.2rem;
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+
+        .stat-number {
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-text {
+            font-size: 1rem;
+            color: var(--dark);
+        }
+
+        .how-section,
+        .values-section,
+        .cta-section,
+        .testimonials-section {
+            margin: 60px 0;
+        }
+
+        .how-step {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .how-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .value-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(77, 159, 255, 0.04);
+            padding: 24px;
+            text-align: center;
+        }
+
+        .value-icon {
+            font-size: 2.2rem;
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+
+        .cta-section .btn {
+            min-width: 180px;
+            margin: 10px;
+            font-size: 1.1rem;
+        }
+
+        .testimonial-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(77, 159, 255, 0.04);
+            padding: 24px;
+            text-align: center;
+            transition: box-shadow 0.2s;
+        }
+
+        .testimonial-photo {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 12px;
+        }
+
+        .testimonial-text {
+            font-style: italic;
+            color: #555;
+        }
+
+        .testimonial-author {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        @media (max-width: 991px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .stats-section {
+                padding: 24px 0;
+            }
+        }
+
+        @media (max-width: 767px) {
+
+            .how-section,
+            .values-section,
+            .cta-section,
+            .testimonials-section {
+                margin: 32px 0;
+            }
+
+            .stat-item {
+                margin-bottom: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div th:replace="fragments/navbar :: navbar"></div>
+    <!-- Hero Section -->
+    <section class="hero-section text-center text-lg-start">
+        <div class="container hero-content fade-in">
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-5 mb-lg-0">
+                    <h1 class="hero-title" th:text="#{hero.title}">Charity foundation</h1>
+                    <p class="hero-tagline" th:text="#{hero.tagline}">Plateforme solidaire pour un impact réel et
+                        transparent</p>
+                    <div class="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-start gap-3">
+                        <a th:href="@{/about}" class="btn btn-secondary" th:text="#{hero.cta.learn}">En savoir plus</a>
+                        <a th:href="@{/donate}" class="btn btn-primary" th:text="#{hero.cta.donate}">Faire un don</a>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <img src="/images/tabletmokup.jpg" alt="Tablet Mockup" class="img-fluid fade-in"
+                        style="max-width: 350px; border-radius: 18px; box-shadow: 0 4px 24px rgba(77,159,255,0.12);">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistiques dynamiques -->
+    <section class="container stats-section fade-in">
+        <div class="row justify-content-center">
+            <div class="col-6 col-md-4 col-lg-2 stat-item">
+                <div class="stat-icon"><i class="fas fa-hands-helping"></i></div>
+                <div class="stat-number" th:text="${campaignsCount}">0</div>
+                <div class="stat-text" th:text="#{stats.platform.campaigns}">Actions de charité actives</div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2 stat-item">
+                <div class="stat-icon"><i class="fas fa-desktop"></i></div>
+                <div class="stat-number" th:text="${websitesCount}">0</div>
+                <div class="stat-text" th:text="#{stats.websites}">Organisations partenaires</div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2 stat-item">
+                <div class="stat-icon"><i class="fas fa-globe"></i></div>
+                <div class="stat-number" th:text="${countriesCount}">0</div>
+                <div class="stat-text" th:text="#{stats.countries}">Pays couverts</div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2 stat-item">
+                <div class="stat-icon"><i class="fas fa-heart"></i></div>
+                <div class="stat-number" th:text="${donorsCount}">0</div>
+                <div class="stat-text" th:text="#{stats.donors}">Donateurs</div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2 stat-item">
+                <div class="stat-icon"><i class="fas fa-user-friends"></i></div>
+                <div class="stat-number" th:text="${volunteersCount}">0</div>
+                <div class="stat-text" th:text="#{stats.volunteers}">Bénévoles</div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2 stat-item">
+                <div class="stat-icon"><i class="fas fa-donate"></i></div>
+                <div class="stat-number" th:text="${totalDonations}">0</div>
+                <div class="stat-text" th:text="#{stats.donations}">Montant collecté (€)</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Comment ça marche -->
+    <section class="how-section fade-in">
+        <div class="container">
+            <h2 class="text-center mb-5" th:text="#{how.title}">Comment ça marche ?</h2>
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-4 how-step">
+                    <div class="how-icon"><i class="fas fa-search"></i></div>
+                    <h5 th:text="#{how.step1.title}">1. Explorez les actions</h5>
+                    <p th:text="#{how.step1.desc}">Trouvez une cause qui vous tient à cœur parmi des centaines
+                        d'initiatives solidaires.</p>
+                </div>
+                <div class="col-12 col-md-4 how-step">
+                    <div class="how-icon"><i class="fas fa-hand-holding-usd"></i></div>
+                    <h5 th:text="#{how.step2.title}">2. Faites un don ou proposez une action</h5>
+                    <p th:text="#{how.step2.desc}">Contribuez financièrement ou lancez votre propre projet solidaire en
+                        quelques clics.</p>
+                </div>
+                <div class="col-12 col-md-4 how-step">
+                    <div class="how-icon"><i class="fas fa-chart-line"></i></div>
+                    <h5 th:text="#{how.step3.title}">3. Suivez l'impact</h5>
+                    <p th:text="#{how.step3.desc}">Recevez des nouvelles et voyez concrètement l'impact de votre
+                        générosité.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Valeurs -->
+    <section class="values-section fade-in">
+        <div class="container">
+            <h2 class="text-center mb-5" th:text="#{values.title}">Nos valeurs</h2>
+            <div class="row justify-content-center g-4">
+                <div class="col-12 col-md-4">
+                    <div class="value-card">
+                        <div class="value-icon"><i class="fas fa-hands"></i></div>
+                        <h5 th:text="#{values.solidarity.title}">Solidarité</h5>
+                        <p th:text="#{values.solidarity.desc}">Nous croyons à la force du collectif pour changer des
+                            vies.</p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="value-card">
+                        <div class="value-icon"><i class="fas fa-eye"></i></div>
+                        <h5 th:text="#{values.transparency.title}">Transparence</h5>
+                        <p th:text="#{values.transparency.desc}">Suivi en temps réel des dons et des actions pour une
+                            confiance totale.</p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="value-card">
+                        <div class="value-icon"><i class="fas fa-bullseye"></i></div>
+                        <h5 th:text="#{values.impact.title}">Impact</h5>
+                        <p th:text="#{values.impact.desc}">Chaque don, chaque action compte et fait la différence.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Témoignages -->
+    <section class="testimonials-section fade-in">
+        <div class="container">
+            <h2 class="text-center mb-5" th:text="#{testimonials.title}">Ils témoignent</h2>
+            <div class="row justify-content-center g-4">
+                <div class="col-12 col-md-4">
+                    <div class="testimonial-card">
+                        <img src="https://randomuser.me/api/portraits/women/44.jpg" class="testimonial-photo"
+                            alt="Témoin 1">
+                        <div class="testimonial-text" th:text="#{testimonials.1.text}">“Grâce à Charity foundation, j'ai
+                            pu
+                            financer une opération pour mon fils. Merci à tous les donateurs !”</div>
+                        <div class="testimonial-author" th:text="#{testimonials.1.author}">Fatima, bénéficiaire</div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="testimonial-card">
+                        <img src="https://randomuser.me/api/portraits/men/32.jpg" class="testimonial-photo"
+                            alt="Témoin 2">
+                        <div class="testimonial-text" th:text="#{testimonials.2.text}">“La transparence de la plateforme
+                            m'a convaincu de donner régulièrement.”</div>
+                        <div class="testimonial-author" th:text="#{testimonials.2.author}">Jean, donateur</div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="testimonial-card">
+                        <img src="https://randomuser.me/api/portraits/women/65.jpg" class="testimonial-photo"
+                            alt="Témoin 3">
+                        <div class="testimonial-text" th:text="#{testimonials.3.text}">“En tant que bénévole, j'ai
+                            trouvé un vrai sens à mon engagement.”</div>
+                        <div class="testimonial-author" th:text="#{testimonials.3.author}">Sophie, bénévole</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Appels à l'action (CTA) -->
+    <section class="cta-section fade-in">
+        <div class="container text-center">
+            <h2 class="mb-4" th:text="#{cta.title}">Agissez maintenant</h2>
+            <div class="d-flex flex-column flex-md-row justify-content-center align-items-center gap-3">
+                <a th:href="@{/donate}" class="btn btn-primary" th:text="#{cta.donate}">Faire un don</a>
+                <a th:href="@{/participations}" class="btn btn-secondary" th:text="#{cta.volunteer}">Devenir
+                    bénévole</a>
+                <a th:href="@{/organisation/actions/create}" class="btn btn-outline-primary"
+                    th:text="#{cta.propose}">Proposer une
+                    action</a>
+            </div>
+        </div>
+    </section>
+
+    <div th:replace="fragments/footer :: footer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Animation au scroll
+        const fadeEls = document.querySelectorAll('.fade-in');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationDelay = '0.1s';
+                    entry.target.classList.add('animated');
+                    entry.target.style.opacity = 1;
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+        fadeEls.forEach(el => {
+            el.style.opacity = 0;
+            observer.observe(el);
+        });
+    </script>
+</body>
+
+</html>

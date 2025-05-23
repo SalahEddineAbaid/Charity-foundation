@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title>Dashboard</title>
+</head>
+
+<body>
+    <section layout:fragment="content">
+        <!-- Dashboard KPI Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+                <div class="flex items-center">
+                    <div class="rounded-full bg-blue-100 p-3 mr-4">
+                        <i class="fa-solid fa-heart text-blue-500 text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-gray-500 text-sm font-medium">Actions créées</h2>
+                        <div id="count-actions" class="text-2xl font-bold text-gray-800">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
+                <div class="flex items-center">
+                    <div class="rounded-full bg-green-100 p-3 mr-4">
+                        <i class="fa-solid fa-users text-green-500 text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-gray-500 text-sm font-medium">Participants</h2>
+                        <div id="count-participants" class="text-2xl font-bold text-gray-800">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
+                <div class="flex items-center">
+                    <div class="rounded-full bg-purple-100 p-3 mr-4">
+                        <i class="fa-solid fa-coins text-purple-500 text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-gray-500 text-sm font-medium">Montant collecté</h2>
+                        <div id="count-collecte" class="text-2xl font-bold text-gray-800">0 €</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mt-6">
+            <h2 class="text-xl font-semibold mb-4">Montants collectés par action</h2>
+            <div th:if="${#lists.isEmpty(actions)}" class="text-center py-8 text-gray-500">
+                <i class="fa-solid fa-chart-line text-4xl mb-3 opacity-30"></i>
+                <p>Aucune donnée disponible pour afficher le graphique</p>
+            </div>
+            <canvas th:if="${!#lists.isEmpty(actions)}" id="actionsChart" class="w-full"
+                style="max-height: 400px;"></canvas>
+        </div>
+
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            const actions = /*[[${totalActions}]]*/ 0;
+            const participants = /*[[${totalParticipants}]]*/ 0;
+            const collecte = /*[[${totalCollecte}]]*/ 0;
+
+            new countUp.CountUp('count-actions', actions).start();
+            new countUp.CountUp('count-participants', participants).start();
+            new countUp.CountUp('count-collecte', collecte, { decimalPlaces: 2, suffix: " €" }).start();
+            /*]]>*/
+        </script>
+
+        <script th:if="${!#lists.isEmpty(actions)}" th:inline="javascript">
+            /*<![CDATA[*/
+            var labels = /*[[${actions.![titre]}]]*/[];
+            var data = /*[[${actions.![montantCollecte]}]]*/[];
+            var ctx = document.getElementById('actionsChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Montant collecté (€)',
+                        data: data,
+                        backgroundColor: 'rgba(90, 141, 97, 0.7)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            formatter: Math.round,
+                            font: { weight: 'bold' }
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+            /*]]>*/
+        </script>
+
+        <script th:if="${!#lists.isEmpty(actions)}" th:inline="javascript">
+            /*<![CDATA[*/
+            const actionsLabels = /*[[${actionsParMois != null ? actionsParMois.keySet() : {}}]]*/[];
+            const actionsData = /*[[${actionsParMois != null ? actionsParMois.values() : {}}]]*/[];
+            /*]]>*/
+        </script>
+
+        <script>
+            lucide.createIcons();
+        </script>
+    </section>
+</body>
+
+</html>

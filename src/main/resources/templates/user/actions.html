@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{user/layout-user}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actions | CommonWealth</title>
+    <style>
+        .action-card {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .action-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .category-badge {
+            background-color: #e6f2ff;
+            color: #4D9FFF;
+            font-size: 0.75rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .filter-card {
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container py-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold">Découvrir les Actions</h2>
+                <a th:href="@{/organisation/actions/public/list}" class="btn btn-success btn-sm">
+                    <i class="fas fa-plus me-2"></i>Créer une action
+                </a>
+            </div>
+
+            <div class="row">
+                <!-- Filtres -->
+                <div class="col-lg-3 mb-4">
+                    <div class="card filter-card">
+                        <div class="card-body">
+                            <h5 class="card-title h6 mb-3">Filtrer par catégorie</h5>
+                            <form th:action="@{/user/actions}" method="get" class="row g-2">
+                                <div class="col-md-12">
+                                    <select class="form-select form-select-sm" id="categorieId" name="categorieId"
+                                        onchange="this.form.submit()">
+                                        <option value="">Toutes les catégories</option>
+                                        <option th:each="categorie : ${categories}" th:value="${categorie.id}"
+                                            th:text="${categorie.nom}"
+                                            th:selected="${selectedCategorieId != null and selectedCategorieId == categorie.id}">
+                                        </option>
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="col-lg-9">
+                    <div th:if="${#lists.isEmpty(actions)}" class="text-center py-5">
+                        <i class="fas fa-heart-broken fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Aucune action trouvée</h5>
+                        <p>Essayez de modifier vos filtres ou créez une nouvelle action</p>
+                    </div>
+
+                    <div class="row" th:unless="${#lists.isEmpty(actions)}">
+                        <div th:each="action : ${actions}" class="col-md-6 col-lg-6 mb-4">
+                            <div class="action-card h-100">
+                                <img th:if="${action.imageUrl != null}" th:src="${action.imageUrl}" class="action-image"
+                                    alt="Image de l'action">
+                                <img th:unless="${action.imageUrl != null}" src="/assets/images/default-action.svg"
+                                    class="action-image" alt="Image par défaut">
+                                <div class="card-body">
+                                    <div class="mb-2">
+                                        <span th:if="${action.categorie != null}" class="category-badge"
+                                            th:text="${action.categorie.nom}">Catégorie</span>
+                                    </div>
+                                    <h5 class="card-title" th:text="${action.titre}">Titre de l'action</h5>
+                                    <p class="card-text" th:text="${#strings.abbreviate(action.description, 100)}">
+                                        Description...</p>
+                                </div>
+                                <div class="card-footer bg-white border-top-0">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted"
+                                            th:text="${#temporals.format(action.dateDebut, 'dd/MM/yyyy')}">Date</small>
+                                        <a th:href="@{/organisation/actions/{id}(id=${action.id})}"
+                                            class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-chevron-right me-1"></i>Détails
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}"
+    th:dir="${#locale.language == 'ar' ? 'rtl' : 'ltr'}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Créer un compte</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background: linear-gradient(120deg, #f7fafc 0%, #e3f0ff 100%);
+            min-height: 100vh;
+        }
+
+        .signup-container {
+            max-width: 420px;
+            margin: 48px auto;
+            background: #fff;
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(77, 159, 255, 0.12), 0 1.5px 6px rgba(255, 145, 77, 0.08);
+            padding: 40px 32px 32px 32px;
+            animation: fadeInUp 0.8s cubic-bezier(.39, .575, .565, 1) both;
+            position: relative;
+        }
+
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .signup-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #22223B;
+            margin-bottom: 2rem;
+            text-align: center;
+            letter-spacing: -1px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #22223B;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 10px;
+            border: 1.5px solid #e3e7ed;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-shadow: none;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #4D9FFF;
+            box-shadow: 0 0 0 2px #4d9fff22;
+        }
+
+        .input-group-text {
+            background: #F7F8FA;
+            border: none;
+            color: #4D9FFF;
+        }
+
+        .btn-primary {
+            background: #FF914D;
+            border: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px #ff914d22;
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #ff7a26;
+            box-shadow: 0 4px 16px #ff914d33;
+        }
+
+        .signup-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 1rem;
+        }
+
+        .signup-link a {
+            color: #4D9FFF;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .signup-link a:hover {
+            text-decoration: underline;
+            color: #FF914D;
+        }
+    </style>
+</head>
+
+<body>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="signup-container fade-in">
+        <div style="text-align:center; margin-bottom: 1.2rem;">
+            <img src="/images/logo.png" alt="CommonWealth" style="height:48px;">
+        </div>
+        <div class="signup-title">Créer un compte</div>
+        <form th:action="@{/signup}" method="post" autocomplete="off">
+            <!-- Display error message if any -->
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <!-- Rôle -->
+            <div class="mb-3">
+                <label for="role" class="form-label">Rôle</label>
+                <select class="form-select" id="role" name="role" required>
+                    <option value="USER">Utilisateur</option>
+                    <option value="ORGANISATION">Organisation</option>
+                </select>
+            </div>
+
+            <!-- Champs Utilisateur -->
+            <div class="mb-3 user-field">
+                <label for="nom" class="form-label">Nom</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-user"></i></span>
+                    <input type="text" class="form-control" id="nom" name="nom" maxlength="50" placeholder="Nom">
+                </div>
+            </div>
+            <div class="mb-3 user-field">
+                <label for="prenom" class="form-label">Prénom</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-user"></i></span>
+                    <input type="text" class="form-control" id="prenom" name="prenom" maxlength="50"
+                        placeholder="Prénom">
+                </div>
+            </div>
+            <div class="mb-3 user-field">
+                <label for="telephone" class="form-label">Téléphone</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-phone"></i></span>
+                    <input type="tel" class="form-control" id="telephone" name="telephone" maxlength="20"
+                        placeholder="Téléphone">
+                </div>
+            </div>
+            <div class="mb-3 user-field">
+                <label for="adresse" class="form-label">Adresse</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-map-marker-alt"></i></span>
+                    <input type="text" class="form-control" id="adresse" name="adresse" maxlength="100"
+                        placeholder="Adresse">
+                </div>
+            </div>
+
+            <!-- Champs Organisation -->
+            <div class="mb-3 org-field" style="display:none;">
+                <label for="orgNom" class="form-label">Nom de l'organisation</label>
+                <input type="text" class="form-control" id="orgNom" name="orgNom" maxlength="100"
+                    placeholder="Nom de l'organisation">
+            </div>
+            <div class="mb-3 org-field" style="display:none;">
+                <label for="orgDescription" class="form-label">Description</label>
+                <textarea class="form-control" id="orgDescription" name="orgDescription" maxlength="255"
+                    placeholder="Description"></textarea>
+            </div>
+            <div class="mb-3 org-field" style="display:none;">
+                <label for="orgAdresseLegale" class="form-label">Adresse légale</label>
+                <input type="text" class="form-control" id="orgAdresseLegale" name="orgAdresseLegale" maxlength="150"
+                    placeholder="Adresse légale">
+            </div>
+            <div class="mb-3 org-field" style="display:none;">
+                <label for="orgNif" class="form-label">NIF</label>
+                <input type="text" class="form-control" id="orgNif" name="orgNif" maxlength="30"
+                    placeholder="Numéro d'identification fiscale">
+            </div>
+            <div class="mb-3 org-field" style="display:none;">
+                <label for="orgContactPrincipal" class="form-label">Contact principal</label>
+                <input type="text" class="form-control" id="orgContactPrincipal" name="orgContactPrincipal"
+                    maxlength="100" placeholder="Contact principal">
+            </div>
+
+            <!-- Email et Mot de passe (communs) -->
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-envelope"></i></span>
+                    <input type="email" class="form-control" id="email" name="email" required maxlength="100"
+                        placeholder="Email">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Mot de passe</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-lock"></i></span>
+                    <input type="password" class="form-control" id="password" name="motDePasse" required minlength="6"
+                        placeholder="Mot de passe">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 mt-2">Créer mon compte</button>
+        </form>
+        <div class="signup-link">
+            <span>Vous avez déjà un compte ?</span>
+            <a th:href="@{/login}">Se connecter</a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const roleSelect = document.getElementById('role');
+            const userFields = document.querySelectorAll('.user-field');
+            const orgFields = document.querySelectorAll('.org-field');
+
+            function updateFields() {
+                if (roleSelect.value === 'USER') {
+                    userFields.forEach(f => f.style.display = '');
+                    orgFields.forEach(f => f.style.display = 'none');
+                } else if (roleSelect.value === 'ORGANISATION') {
+                    userFields.forEach(f => f.style.display = 'none');
+                    orgFields.forEach(f => f.style.display = '');
+                } else {
+                    userFields.forEach(f => f.style.display = 'none');
+                    orgFields.forEach(f => f.style.display = 'none');
+                }
+            }
+
+            roleSelect.addEventListener('change', updateFields);
+            updateFields(); // Initial call
+        });
+    </script>
+</body>
+
+</html>

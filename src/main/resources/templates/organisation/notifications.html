@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title>Notifications</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <style>
+        .notification {
+            @apply border-l-4 p-4 mb-4 relative transition-all duration-200 hover:shadow-md;
+        }
+
+        .notification-unread {
+            @apply border-blue-500 bg-blue-50;
+        }
+
+        .notification-read {
+            @apply border-gray-300 bg-gray-50;
+        }
+
+        .notification-title {
+            @apply text-lg font-semibold mb-1;
+        }
+
+        .notification-content {
+            @apply text-gray-600;
+        }
+
+        .notification-time {
+            @apply text-xs text-gray-500 mt-2;
+        }
+
+        .notification-badge {
+            @apply absolute top-2 right-2 w-4 h-4 rounded-full;
+        }
+
+        .notification-badge-unread {
+            @apply bg-blue-500;
+        }
+
+        .btn {
+            @apply px-4 py-2 rounded font-medium text-sm transition-colors;
+        }
+
+        .btn-primary {
+            @apply bg-blue-500 text-white hover:bg-blue-600;
+        }
+
+        .btn-secondary {
+            @apply bg-gray-200 text-gray-700 hover:bg-gray-300;
+        }
+
+        .btn-sm {
+            @apply px-3 py-1 text-xs;
+        }
+    </style>
+</head>
+
+<body>
+    <section layout:fragment="content">
+        <div class="container mx-auto px-4 py-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <!-- En-tête avec titre et bouton -->
+                <div class="flex justify-between items-center mb-8">
+                    <div class="flex items-center">
+                        <h1 class="text-2xl font-bold text-gray-800">Notifications</h1>
+                        <div th:if="${unreadCount > 0}"
+                            class="ml-4 px-3 py-1 bg-blue-500 text-white text-sm font-medium rounded-full">
+                            <span th:text="${unreadCount}">0</span> <span
+                                th:text="${unreadCount > 1 ? 'non lues' : 'non lue'}">non lues</span>
+                        </div>
+                    </div>
+                    <form th:if="${!#lists.isEmpty(notifications) && unreadCount > 0}"
+                        th:action="@{/organisation/notifications/mark-all-read}" method="post">
+                        <button type="submit" class="btn btn-secondary">
+                            <i class="fas fa-check-double mr-2"></i>Tout marquer comme lu
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Notifications vides -->
+                <div th:if="${#lists.isEmpty(notifications)}" class="text-center py-16">
+                    <i class="fas fa-bell text-gray-300 text-5xl mb-3"></i>
+                    <p class="text-gray-500">Vous n'avez aucune notification pour le moment.</p>
+                </div>
+
+                <!-- Liste des notifications -->
+                <div th:unless="${#lists.isEmpty(notifications)}">
+                    <div th:each="notification : ${notifications}"
+                        th:classappend="${notification.lu ? 'notification notification-read' : 'notification notification-unread'}">
+                        <!-- Indicateur non lu -->
+                        <div th:if="${!notification.lu}" class="notification-badge notification-badge-unread"></div>
+
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <h3 class="notification-title" th:text="${notification.titre}">Titre de la notification
+                                </h3>
+                                <p class="notification-content" th:text="${notification.contenu}">Contenu de la
+                                    notification...</p>
+
+                                <!-- Lien vers l'action associée si disponible -->
+                                <div th:if="${notification.action != null}" class="mt-2">
+                                    <a th:href="@{'/organisation/actions/' + ${notification.action.id}}"
+                                        class="text-blue-600 hover:underline text-sm">
+                                        <i class="fas fa-external-link-alt mr-1"></i>
+                                        <span th:text="${notification.action.titre}">Titre de l'action</span>
+                                    </a>
+                                </div>
+
+                                <div class="notification-time"
+                                    th:text="${#temporals.format(notification.dateCreation, 'dd/MM/yyyy à HH:mm')}">
+                                    01/01/2025 à 12:00</div>
+                            </div>
+
+                            <div class="flex-shrink-0">
+                                <!-- Bouton marquer comme lu si non lu -->
+                                <form th:if="${!notification.lu}"
+                                    th:action="@{'/organisation/notifications/' + ${notification.id} + '/mark-read'}"
+                                    method="post">
+                                    <button type="submit" class="btn btn-sm btn-secondary">
+                                        <i class="fas fa-check mr-1"></i>Marquer comme lu
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

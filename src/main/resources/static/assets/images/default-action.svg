@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="240" viewBox="0 0 400 240">
+  <rect width="400" height="240" fill="#e6f2ff"/>
+  <path d="M200,90 Q220,60 240,90 T280,90 L280,160 Q260,190 240,160 T200,160 Z" fill="#4D9FFF" opacity="0.8"/>
+  <path d="M180,90 Q160,60 140,90 T100,90 L100,160 Q120,190 140,160 T180,160 Z" fill="#4D9FFF" opacity="0.6"/>
+  <text x="200" y="135" font-family="Arial" font-size="24" text-anchor="middle" fill="#333">Action</text>
+</svg> 
